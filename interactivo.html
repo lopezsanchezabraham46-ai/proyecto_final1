@@ -1,122 +1,98 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explora el Mundo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{--primary:#f97316;--success:#22c55e;--secondary:#0ea5e9}
-    body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#f8fafc;min-height:100vh}
-    #header{background:linear-gradient(135deg,#f97316,#ea580c);padding:30px;text-align:center}
-    #header h1{font-family:'Playfair Display',serif;font-size:2.5rem}
-    #progress-section{max-width:1200px;margin:20px auto;padding:0 20px}
-    .progress-container{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.1)}
-    .progress-header{display:flex;justify-content:space-between;margin-bottom:12px}
-    .progress-count{color:#fb923c;font-weight:700}
-    .progress-bar{height:8px;background:rgba(255,255,255,0.2);border-radius:4px}
-    .progress-fill{height:100%;background:linear-gradient(90deg,#f97316,#fb923c);border-radius:4px;transition:width 0.5s}
-    .destinations-checklist{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
-    .destination-chip{padding:6px 12px;border-radius:20px;font-size:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);transition:all 0.3s;display:flex;align-items:center;gap:6px}
-    .destination-chip.visited{background:linear-gradient(135deg,#22c55e,#16a34a);border-color:#22c55e;box-shadow:0 0 15px rgba(34,197,94,0.4)}
-    .destination-chip .check{opacity:0;transform:scale(0);transition:all 0.3s}
-    .destination-chip.visited .check{opacity:1;transform:scale(1)}
-    #seccion{display:flex;flex-wrap:wrap;padding:20px;gap:24px;max-width:1200px;margin:0 auto}
-    .barra{flex:1;min-width:350px;display:flex;justify-content:center}
-    #imagen-interactiva{position:relative;width:380px;height:520px;background:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=800&fit=crop') center/cover;border-radius:24px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5)}
-    .hotspot{position:absolute;width:52px;height:52px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;border:3px solid white;box-shadow:0 0 30px rgba(249,115,22,0.6);animation:pulse 2s infinite;transition:all 0.3s}
-    .hotspot:hover{transform:scale(1.2);box-shadow:0 0 40px rgba(249,115,22,0.9)}
-    .hotspot.visited{background:linear-gradient(135deg,#22c55e,#16a34a);animation:none}
-    .hotspot.visited::after{content:'✓';position:absolute;font-size:24px}
-    .hotspot.visited span{display:none}
-    @keyframes pulse{0%,100%{box-shadow:0 0 20px rgba(249,115,22,0.6)}50%{box-shadow:0 0 40px rgba(249,115,22,0.9)}}
-    #hotspot1{top:12%;left:58%}#hotspot2{top:48%;left:22%}#hotspot3{top:72%;left:42%}#hotspot4{top:22%;left:72%}#hotspot5{top:38%;left:52%}#hotspot6{top:58%;left:72%}
-    .contenido{flex:1;min-width:320px;background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border-radius:24px;padding:28px;border:1px solid rgba(255,255,255,0.1)}
-    #info-panel h2{font-family:'Playfair Display',serif;color:#fb923c;margin-bottom:16px;font-size:1.8rem}
-    #info-panel p{line-height:1.8;color:rgba(255,255,255,0.85)}
-    #imagen-info{width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-top:20px;display:none}
-    .btn{padding:14px 28px;border:none;border-radius:12px;cursor:pointer;font-size:16px;font-weight:600;transition:all 0.3s;font-family:'Inter',sans-serif}
-    .btn-primary{background:linear-gradient(135deg,#f97316,#ea580c);color:white}
-    .btn-primary:hover:not(:disabled){transform:translateY(-2px)}
-    .btn-quiz{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;margin-top:20px;width:100%;padding:18px;font-size:17px}
-    .btn-quiz:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);cursor:not-allowed}
-    .btn-back{background:transparent;color:#fb923c;border:2px solid #fb923c;margin-top:16px}
-    #regresar{display:none}
-    .quiz-locked-msg{margin-top:12px;padding:12px;background:rgba(249,115,22,0.1);border-radius:8px;font-size:13px;color:#fb923c;text-align:center}
-    .quiz-locked-msg.hidden{display:none}
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);justify-content:center;align-items:center;z-index:1000;padding:20px}
-    .modal-content{background:linear-gradient(135deg,#1e293b,#0f172a);padding:36px;border-radius:24px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid rgba(255,255,255,0.1);animation:modalIn 0.4s}
-    @keyframes modalIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-    .modal-content h2{text-align:center;font-family:'Playfair Display',serif;color:#fb923c;margin-bottom:24px;font-size:2rem}
-    .modal-content input{width:100%;padding:16px;border:2px solid rgba(255,255,255,0.1);border-radius:12px;margin:12px 0;font-size:16px;background:rgba(255,255,255,0.05);color:white}
-    .modal-content input:focus{outline:none;border-color:#f97316}
-    .modal-content input::placeholder{color:rgba(255,255,255,0.4)}
-    .quiz-progress{display:flex;justify-content:space-between;margin-bottom:16px;font-size:14px;color:rgba(255,255,255,0.7)}
-    .quiz-score{color:#fb923c;font-weight:700}
-    .progress-bar-quiz{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-bottom:28px}
-    .progress-fill-quiz{height:100%;background:linear-gradient(90deg,#f97316,#fb923c);border-radius:3px;transition:width 0.5s}
-    .question-text{font-size:1.2rem;font-weight:500;margin-bottom:20px}
-    .feedback{padding:12px;border-radius:10px;margin-top:16px;font-weight:500;display:none}
-    .feedback.correct{background:rgba(34,197,94,0.2);border:1px solid #22c55e;color:#86efac;display:block}
-    .feedback.incorrect{background:rgba(239,68,68,0.2);border:1px solid #ef4444;color:#fca5a5;display:block}
-    .result{text-align:center}
-    .result-icon{width:100px;height:100px;margin:0 auto 20px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:50px}
-    .result .score{font-size:4rem;font-weight:700;background:linear-gradient(135deg,#f97316,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .result-message{font-size:1.1rem;color:rgba(255,255,255,0.8);margin:16px 0 28px}
-    .result-buttons{display:flex;gap:12px;justify-content:center}
-    #guestbook{max-width:1200px;margin:40px auto;padding:0 20px 100px}
-    #guestbook h2{font-family:'Playfair Display',serif;color:#fb923c;margin-bottom:24px}
-    .guestbook-container{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    @media(max-width:768px){.guestbook-container{grid-template-columns:1fr}#imagen-interactiva{width:100%;max-width:380px}}
-    .guestbook-form,.guestbook-entries{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);padding:24px;border-radius:20px;border:1px solid rgba(255,255,255,0.1)}
-    .guestbook-form h3,.guestbook-entries h3{margin-bottom:16px;font-weight:600}
-    .guestbook-form input,.guestbook-form textarea{width:100%;padding:14px;border:2px solid rgba(255,255,255,0.1);border-radius:10px;margin-bottom:14px;font-size:14px;background:rgba(255,255,255,0.05);color:white}
-    .guestbook-form input:focus,.guestbook-form textarea:focus{outline:none;border-color:#f97316}
-    .guestbook-form input::placeholder,.guestbook-form textarea::placeholder{color:rgba(255,255,255,0.4)}
-    .guestbook-form textarea{min-height:100px;resize:vertical}
-    .entry{background:rgba(255,255,255,0.05);padding:16px;border-radius:14px;margin-bottom:14px;border-left:4px solid #f97316;transition:all 0.3s}
-    .entry:hover{background:rgba(255,255,255,0.08);transform:translateX(4px)}
-    .entry-header{display:flex;justify-content:space-between;margin-bottom:8px}
-    .entry-name{font-weight:600}.entry-date{font-size:12px;color:rgba(255,255,255,0.5)}
-    .entry-country{font-size:14px;color:#0ea5e9;margin-bottom:8px}
-    .entry-message{color:rgba(255,255,255,0.8);line-height:1.6;font-size:14px}
-    .entry-places{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-    .place-badge{background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;padding:4px 10px;border-radius:12px;font-size:11px}
-    .delete-btn{background:rgba(239,68,68,0.2);color:#fca5a5;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px}
-    .delete-btn:hover{background:#ef4444;color:white}
-    #footer{background:rgba(0,0,0,0.3);padding:24px;text-align:center;color:rgba(255,255,255,0.6);font-size:14px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explora el Mundo - Firmar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados (lo mismo que tienes en tu archivo original) */
+        /* ... */
+    </style>
 </head>
 <body>
-  <div id="header"><h1>🌍 Explora el Mundo</h1><p>Una experiencia interactiva de descubrimiento</p></div>
-  <div id="progress-section"><div class="progress-container"><div class="progress-header"><span>📍 Progreso de exploración</span><span class="progress-count"><span id="visited-count">0</span>/6 destinos</span></div><div class="progress-bar"><div class="progress-fill" id="main-progress" style="width:0%"></div></div><div class="destinations-checklist" id="checklist"></div></div></div>
-  <div id="seccion">
-    <div class="barra"><div id="imagen-interactiva"><div class="hotspot" id="hotspot1" onclick="showInfo(0)"><span>1</span></div><div class="hotspot" id="hotspot2" onclick="showInfo(1)"><span>2</span></div><div class="hotspot" id="hotspot3" onclick="showInfo(2)"><span>3</span></div><div class="hotspot" id="hotspot4" onclick="showInfo(3)"><span>4</span></div><div class="hotspot" id="hotspot5" onclick="showInfo(4)"><span>5</span></div><div class="hotspot" id="hotspot6" onclick="showInfo(5)"><span>6</span></div></div></div>
-    <div class="contenido"><div id="info-panel"><h2 id="titulo-info">¡Bienvenido explorador!</h2><p id="texto-info">Haz clic en cada uno de los <strong>6 puntos</strong> del mapa para descubrir increíbles destinos turísticos. Debes visitar <strong>todos los destinos</strong> antes de poder realizar el quiz final.</p><img id="imagen-info" src="" alt=""><button id="regresar" class="btn btn-back" onclick="regresar()">← Volver</button></div><button class="btn btn-quiz" id="quiz-btn" onclick="openQuiz()" disabled>🏆 Iniciar Quiz de Turismo</button><div class="quiz-locked-msg" id="quiz-msg">🔒 Visita todos los destinos para desbloquear el quiz</div></div>
-  </div>
-  <div id="guestbook"><h2>📖 Libro de Visitas</h2><div class="guestbook-container"><div class="guestbook-form"><h3>Deja tu huella</h3><input type="text" id="gb-name" placeholder="Tu nombre"><input type="text" id="gb-country" placeholder="Tu país"><input type="text" id="gb-places" placeholder="Lugares visitados (separados por coma)"><textarea id="gb-message" placeholder="Tu experiencia..."></textarea><button class="btn btn-primary" onclick="addEntry()">✍️ Firmar</button></div><div class="guestbook-entries"><h3>Exploradores recientes</h3><div id="entries-list"></div></div></div></div>
-  <div class="modal" id="quiz-modal"><div class="modal-content"><div id="quiz-content"></div></div></div>
-  <div id="footer"><p>© 2024 Explora el Mundo</p></div>
-  <script>
-    const destinos=[{id:0,title:"Maldivas",desc:"Las Maldivas son un paraíso tropical con más de 1,000 islas de coral. Sus aguas cristalinas y playas de arena blanca las convierten en uno de los destinos más exclusivos del mundo.",img:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=350&fit=crop"},{id:1,title:"Machu Picchu",desc:"La ciudadela inca ubicada a 2,430 metros en los Andes peruanos es una de las Nuevas Siete Maravillas del Mundo. Su arquitectura perfecta la hace imperdible.",img:"https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=500&h=350&fit=crop"},{id:2,title:"Safari en África",desc:"Los safaris africanos ofrecen la experiencia única de observar los 'Big Five' en su hábitat natural. El Serengeti y Kruger son los más famosos.",img:"https://images.unsplash.com/photo-1516426122078-c23e76319801?w=500&h=350&fit=crop"},{id:3,title:"Gran Muralla China",desc:"Con más de 21,000 km de extensión, es la estructura arquitectónica más grande jamás construida. Patrimonio de la Humanidad desde 1987.",img:"https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=500&h=350&fit=crop"},{id:4,title:"Taj Mahal",desc:"Mausoleo de mármol blanco en India construido por el emperador Shah Jahan. Su perfecta simetría lo hace una maravilla arquitectónica.",img:"https://images.unsplash.com/photo-1564507592333-c60657eea523?w=500&h=350&fit=crop"},{id:5,title:"Torre Eiffel",desc:"Símbolo icónico de París construida en 1889. Con 330 metros de altura, recibe más de 7 millones de visitantes al año.",img:"https://images.unsplash.com/photo-1511739001486-6bfe10ce65f4?w=500&h=350&fit=crop"}];
-    const preguntas=[{q:"¿En qué país está Machu Picchu?",a:"perú",hint:"País sudamericano de los Incas"},{q:"¿Qué río cruza Egipto?",a:"nilo",hint:"El más largo de África"},{q:"¿País de la Torre Eiffel?",a:"francia",hint:"País europeo"},{q:"¿Océano de las Maldivas?",a:"índico",hint:"Entre África y Australia"},{q:"¿País de la Gran Muralla?",a:"china",hint:"El más poblado de Asia"},{q:"¿Continente del safari?",a:"áfrica",hint:"Continente del Serengeti"},{q:"¿Capital de Italia?",a:"roma",hint:"Ciudad del Coliseo"},{q:"¿País de las pirámides?",a:"egipto",hint:"Norte de África"},{q:"¿Ciudad del Big Ben?",a:"londres",hint:"Capital de Inglaterra"},{q:"¿País del Taj Mahal?",a:"india",hint:"País del sur de Asia"}];
-    let visited=new Set(),currentQ=0,score=0;
-    function initChecklist(){document.getElementById('checklist').innerHTML=destinos.map(d=>`<div class="destination-chip" id="chip-${d.id}"><span class="check">✓</span>${d.title}</div>`).join('')}
-    function updateProgress(){const c=visited.size;document.getElementById('visited-count').textContent=c;document.getElementById('main-progress').style.width=`${(c/6)*100}%`;visited.forEach(id=>{document.getElementById(`chip-${id}`).classList.add('visited');document.getElementById(`hotspot${id+1}`).classList.add('visited')});if(c>=6){document.getElementById('quiz-btn').disabled=false;document.getElementById('quiz-msg').classList.add('hidden')}}
-    function showInfo(i){visited.add(i);updateProgress();document.getElementById('titulo-info').textContent=destinos[i].title;document.getElementById('texto-info').innerHTML=destinos[i].desc;document.getElementById('imagen-info').src=destinos[i].img;document.getElementById('imagen-info').style.display='block';document.getElementById('regresar').style.display='block'}
-    function regresar(){document.getElementById('titulo-info').textContent='¡Bienvenido explorador!';document.getElementById('texto-info').innerHTML='Haz clic en cada uno de los <strong>6 puntos</strong> del mapa para descubrir increíbles destinos turísticos.';document.getElementById('imagen-info').style.display='none';document.getElementById('regresar').style.display='none'}
-    function openQuiz(){if(visited.size<6)return;currentQ=0;score=0;document.getElementById('quiz-modal').style.display='flex';renderQuestion()}
-    function renderQuestion(){if(currentQ>=preguntas.length){showResults();return}const p=preguntas[currentQ];document.getElementById('quiz-content').innerHTML=`<h2>🌍 Quiz de Turismo</h2><div class="quiz-progress"><span>Pregunta ${currentQ+1} de ${preguntas.length}</span><span class="quiz-score">⭐ ${score} pts</span></div><div class="progress-bar-quiz"><div class="progress-fill-quiz" style="width:${((currentQ+1)/preguntas.length)*100}%"></div></div><p class="question-text">${p.q}</p><input type="text" id="answer" placeholder="Tu respuesta..." onkeypress="if(event.key==='Enter')checkAnswer()"><p style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:8px">💡 ${p.hint}</p><div class="feedback" id="feedback"></div><button class="btn btn-primary" style="width:100%;margin-top:20px" onclick="checkAnswer()">Verificar →</button>`;document.getElementById('answer').focus()}
-    function checkAnswer(){const input=document.getElementById('answer'),feedback=document.getElementById('feedback'),ans=input.value.toLowerCase().trim();if(!ans)return;const isCorrect=ans.includes(preguntas[currentQ].a);if(isCorrect){score++;feedback.className='feedback correct';feedback.textContent='✓ ¡Correcto!'}else{feedback.className='feedback incorrect';feedback.textContent=`✗ Era: ${preguntas[currentQ].a}`}input.disabled=true;setTimeout(()=>{currentQ++;renderQuestion()},1200)}
-    function showResults(){const pct=(score/preguntas.length)*100;let emoji='🗺️',msg='Sigue aprendiendo';if(pct>=90){emoji='🏆';msg='¡Experto viajero!'}else if(pct>=70){emoji='🌟';msg='¡Muy bien!'}else if(pct>=50){emoji='✈️';msg='¡Bien hecho!'}document.getElementById('quiz-content').innerHTML=`<div class="result"><div class="result-icon">${emoji}</div><h2>¡Quiz Completado!</h2><div class="score">${score}/${preguntas.length}</div><p class="result-message">${msg}</p><div class="result-buttons"><button class="btn btn-primary" onclick="openQuiz()">🔄 Reintentar</button><button class="btn btn-back" onclick="closeQuiz()">Cerrar</button></div></div>`}
-    function closeQuiz(){document.getElementById('quiz-modal').style.display='none'}
-    function getEntries(){return JSON.parse(localStorage.getItem('guestbook')||'[]')}
-    function saveEntries(e){localStorage.setItem('guestbook',JSON.stringify(e))}
-    function addEntry(){const n=document.getElementById('gb-name').value.trim(),c=document.getElementById('gb-country').value.trim(),p=document.getElementById('gb-places').value.trim(),m=document.getElementById('gb-message').value.trim();if(!n||!m)return alert('Nombre y mensaje requeridos');const e=getEntries();e.unshift({id:Date.now(),name:n,country:c,places:p.split(',').map(x=>x.trim()).filter(x=>x),message:m,date:new Date().toLocaleDateString('es-ES')});saveEntries(e);['gb-name','gb-country','gb-places','gb-message'].forEach(id=>document.getElementById(id).value='');renderEntries()}
-    function deleteEntry(id){saveEntries(getEntries().filter(e=>e.id!==id));renderEntries()}
-    function renderEntries(){const list=document.getElementById('entries-list'),entries=getEntries();if(!entries.length){list.innerHTML='<p style="color:rgba(255,255,255,0.5);text-align:center;padding:20px">No hay visitas aún</p>';return}list.innerHTML=entries.slice(0,10).map(e=>`<div class="entry"><div class="entry-header"><span class="entry-name">${e.name}</span><span class="entry-date">${e.date} <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button></span></div>${e.country?`<div class="entry-country">📍 ${e.country}</div>`:''}<div class="entry-message">${e.message}</div>${e.places?.length?`<div class="entry-places">${e.places.map(p=>`<span class="place-badge">${p}</span>`).join('')}</div>`:''}</div>`).join('')}
-    initChecklist();renderEntries();
-  </script>
+    <div id="header"><h1>🌍 Explora el Mundo</h1><p>Una experiencia interactiva de descubrimiento</p></div>
+
+    <!-- Formulario para dejar una firma -->
+    <div id="guestbook">
+        <h2>📖 Libro de Visitas</h2>
+        <div class="guestbook-form">
+            <h3>Deja tu huella</h3>
+            <input type="text" id="gb-name" placeholder="Tu nombre">
+            <input type="text" id="gb-country" placeholder="Tu país">
+            <input type="text" id="gb-places" placeholder="Lugares visitados (separados por coma)">
+            <textarea id="gb-message" placeholder="Tu experiencia..."></textarea>
+            <button class="btn btn-primary" onclick="addEntry()">✍️ Firmar</button>
+        </div>
+
+        <!-- Listado de firmas -->
+        <div class="guestbook-entries">
+            <h3>Exploradores recientes</h3>
+            <div id="entries-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Aquí va el código JavaScript para manejar la firma y el listado
+        // Función para obtener las firmas almacenadas
+        function getEntries() {
+            return JSON.parse(localStorage.getItem('guestbook') || '[]');
+        }
+
+        // Función para guardar las firmas
+        function saveEntries(entries) {
+            localStorage.setItem('guestbook', JSON.stringify(entries));
+        }
+
+        // Función para agregar una firma
+        function addEntry() {
+            const name = document.getElementById('gb-name').value.trim();
+            const country = document.getElementById('gb-country').value.trim();
+            const places = document.getElementById('gb-places').value.trim();
+            const message = document.getElementById('gb-message').value.trim();
+
+            if (!name || !message) {
+                return alert('Nombre y mensaje requeridos');
+            }
+
+            const entries = getEntries();
+            entries.unshift({
+                id: Date.now(),
+                name: name,
+                country: country,
+                places: places.split(',').map(x => x.trim()).filter(x => x),
+                message: message,
+                date: new Date().toLocaleDateString('es-ES')
+            });
+
+            saveEntries(entries);
+            ['gb-name', 'gb-country', 'gb-places', 'gb-message'].forEach(id => document.getElementById(id).value = '');
+            renderEntries();
+        }
+
+        // Función para renderizar las firmas
+        function renderEntries() {
+            const list = document.getElementById('entries-list');
+            const entries = getEntries();
+            if (!entries.length) {
+                list.innerHTML = '<p>No hay visitas aún</p>';
+                return;
+            }
+            list.innerHTML = entries.slice(0, 10).map(entry => `
+                <div class="entry">
+                    <div class="entry-header">
+                        <span class="entry-name">${entry.name}</span>
+                        <span class="entry-date">${entry.date}</span>
+                    </div>
+                    <div class="entry-country">📍 ${entry.country}</div>
+                    <div class="entry-message">${entry.message}</div>
+                    <div class="entry-places">${entry.places.map(place => `<span>${place}</span>`).join(', ')}</div>
+                </div>
+            `).join('');
+        }
+
+        // Inicializar el libro de visitas
+        renderEntries();
+    </script>
 </body>
 </html>

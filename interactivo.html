@@ -5,94 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explora el Mundo - Firmar</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
-        /* Estilos personalizados (lo mismo que tienes en tu archivo original) */
-        /* ... */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f2f2f2;
+        }
+
+        #header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+        }
+
+        #guestbook {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .guestbook-form, .guestbook-entries {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #1e8449;
+        }
+
+        .entry {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .entry-places span {
+            background: #e0e0e0;
+            padding: 4px 8px;
+            margin-right: 5px;
+            border-radius: 6px;
+        }
+
+        .listado-btn {
+            display: inline-block;
+            margin-bottom: 15px;
+            background: #2980b9;
+            padding: 10px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .listado-btn:hover {
+            background: #1f618d;
+        }
     </style>
 </head>
-<body>
-    <div id="header"><h1>🌍 Explora el Mundo</h1><p>Una experiencia interactiva de descubrimiento</p></div>
 
-    <!-- Formulario para dejar una firma -->
+<body>
+
+    <div id="header">
+        <h1>🌍 Explora el Mundo</h1>
+        <p>Una experiencia interactiva de descubrimiento</p>
+    </div>
+
     <div id="guestbook">
-        <h2>📖 Libro de Visitas</h2>
+
+        <!-- Botón al listado de firmas -->
+        <a href="listado_firmas.php" class="listado-btn">📜 Ver listado de firmas</a>
+
+        <!-- Formulario para dejar firma -->
         <div class="guestbook-form">
-            <h3>Deja tu huella</h3>
+            <h2>📖 Deja tu huella</h2>
+
             <input type="text" id="gb-name" placeholder="Tu nombre">
             <input type="text" id="gb-country" placeholder="Tu país">
             <input type="text" id="gb-places" placeholder="Lugares visitados (separados por coma)">
             <textarea id="gb-message" placeholder="Tu experiencia..."></textarea>
-            <button class="btn btn-primary" onclick="addEntry()">✍️ Firmar</button>
+
+            <button onclick="addEntry()">✍️ Firmar</button>
         </div>
 
-        <!-- Listado de firmas -->
-        <div class="guestbook-entries">
-            <h3>Exploradores recientes</h3>
-            <div id="entries-list"></div>
-        </div>
     </div>
 
+    <!-- SCRIPT PARA GUARDAR EN BASE DE DATOS -->
     <script>
-        // Aquí va el código JavaScript para manejar la firma y el listado
-        // Función para obtener las firmas almacenadas
-        function getEntries() {
-            return JSON.parse(localStorage.getItem('guestbook') || '[]');
+    function addEntry() {
+        const name = document.getElementById('gb-name').value.trim();
+        const country = document.getElementById('gb-country').value.trim();
+        const places = document.getElementById('gb-places').value.trim().split(',').map(x => x.trim());
+        const message = document.getElementById('gb-message').value.trim();
+
+        if (!name || !message) {
+            return alert("Nombre y mensaje requeridos.");
         }
 
-        // Función para guardar las firmas
-        function saveEntries(entries) {
-            localStorage.setItem('guestbook', JSON.stringify(entries));
-        }
-
-        // Función para agregar una firma
-        function addEntry() {
-            const name = document.getElementById('gb-name').value.trim();
-            const country = document.getElementById('gb-country').value.trim();
-            const places = document.getElementById('gb-places').value.trim();
-            const message = document.getElementById('gb-message').value.trim();
-
-            if (!name || !message) {
-                return alert('Nombre y mensaje requeridos');
+        fetch("guardarFirma.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nombre: name,
+                pais: country,
+                lugares: places,
+                mensaje: message
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "ok") {
+                alert("Firma guardada con éxito!");
+                window.location.href = "listado_firmas.php";
+            } else {
+                alert("Error al guardar: " + data.msg);
             }
-
-            const entries = getEntries();
-            entries.unshift({
-                id: Date.now(),
-                name: name,
-                country: country,
-                places: places.split(',').map(x => x.trim()).filter(x => x),
-                message: message,
-                date: new Date().toLocaleDateString('es-ES')
-            });
-
-            saveEntries(entries);
-            ['gb-name', 'gb-country', 'gb-places', 'gb-message'].forEach(id => document.getElementById(id).value = '');
-            renderEntries();
-        }
-
-        // Función para renderizar las firmas
-        function renderEntries() {
-            const list = document.getElementById('entries-list');
-            const entries = getEntries();
-            if (!entries.length) {
-                list.innerHTML = '<p>No hay visitas aún</p>';
-                return;
-            }
-            list.innerHTML = entries.slice(0, 10).map(entry => `
-                <div class="entry">
-                    <div class="entry-header">
-                        <span class="entry-name">${entry.name}</span>
-                        <span class="entry-date">${entry.date}</span>
-                    </div>
-                    <div class="entry-country">📍 ${entry.country}</div>
-                    <div class="entry-message">${entry.message}</div>
-                    <div class="entry-places">${entry.places.map(place => `<span>${place}</span>`).join(', ')}</div>
-                </div>
-            `).join('');
-        }
-
-        // Inicializar el libro de visitas
-        renderEntries();
+        });
+    }
     </script>
+
 </body>
 </html>
